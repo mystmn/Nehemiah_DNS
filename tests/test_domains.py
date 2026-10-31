@@ -1,6 +1,6 @@
 import pytest
 
-from sentineldns.domains import (
+from nehemiah_dns.domains import (
     candidate_suffixes,
     is_listable,
     normalize_category,
@@ -54,7 +54,9 @@ def test_parse_list_line(line, expected):
 
 
 def test_candidate_suffixes_excludes_tld():
-    assert candidate_suffixes("a.b.example.com") == ["a.b.example.com", "b.example.com", "example.com"]
+    assert candidate_suffixes("a.b.example.com") == [
+        "a.b.example.com", "b.example.com", "example.com"
+    ]
     assert candidate_suffixes("com") == []
 
 

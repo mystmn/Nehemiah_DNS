@@ -18,7 +18,7 @@
     <h2>Hits by matched rule</h2>
     <div class="tabs" role="tablist">
       {% for s in statuses %}
-      <a role="tab" id="tab-{{ s|lower }}" class="tab {{ 'active' if s == status }}" href="{{ url_for('sentinel.dashboard', status=s) }}">{{ s|title }}</a>
+      <a role="tab" id="tab-{{ s|lower }}" class="tab {{ 'active' if s == status }}" href="{{ url_for('nehemiah.dashboard', status=s) }}">{{ s|title }}</a>
       {% endfor %}
     </div>
   </div>
@@ -38,7 +38,7 @@
         <td class="dim">{{ r.last_seen }}</td>
         {% if status == 'PENDING' %}
         <td>
-          <form method="post" action="{{ url_for('sentinel.review_action') }}" class="inline-actions">
+          <form method="post" action="{{ url_for('nehemiah.review_action') }}" class="inline-actions">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="matched" value="{{ r.matched }}">
             <button class="btn danger sm" name="action" value="confirm" title="Keep blocking (adds BLOCK rule)">Confirm</button>

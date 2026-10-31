@@ -1,4 +1,4 @@
-"""SentinelDNS command line: python -m sentineldns <command>."""
+"""Nehemiah_DNS command line: python -m nehemiah_dns <command>."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from .config import load_env_file, load_settings
 
 def cmd_init(_: argparse.Namespace) -> int:
     """
-    Creates the database and seeds sources from SENTINEL_SOURCES.
+    Creates the database and seeds sources from NEHEMIAH_SOURCES.
     Complexity: Time O(S) | Space O(1)
     """
     # --- DATA ---
@@ -97,7 +97,7 @@ def cmd_check(args: argparse.Namespace) -> int:
 
 def cmd_hash_password(_: argparse.Namespace) -> int:
     """
-    Prompts for a password and prints a hash for SENTINEL_ADMIN_PASSWORD_HASH.
+    Prompts for a password and prints a hash for NEHEMIAH_ADMIN_PASSWORD_HASH.
     Complexity: Time O(1) + KDF cost | Space O(1)
     """
     # --- DATA ---
@@ -119,7 +119,7 @@ def cmd_hash_password(_: argparse.Namespace) -> int:
 
 def cmd_gen_secret(_: argparse.Namespace) -> int:
     """
-    Prints a random value suitable for SENTINEL_SECRET_KEY / SENTINEL_API_TOKEN.
+    Prints a random value suitable for NEHEMIAH_SECRET_KEY / NEHEMIAH_API_TOKEN.
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
@@ -138,7 +138,7 @@ def build_parser() -> argparse.ArgumentParser:
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
-    parser = argparse.ArgumentParser(prog="sentineldns", description="SentinelDNS CLI")
+    parser = argparse.ArgumentParser(prog="nehemiah_dns", description="Nehemiah_DNS CLI")
     parser.add_argument("--env-file", default=".env", help="dotenv file to load (default .env)")
     sub = parser.add_subparsers(dest="command", required=True)
     commands = {

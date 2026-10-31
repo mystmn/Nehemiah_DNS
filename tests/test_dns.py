@@ -2,10 +2,10 @@ from dataclasses import replace
 
 from dnslib import QTYPE, RCODE, DNSRecord
 
-from sentineldns.alerts import AlertDispatcher
-from sentineldns.dns_server import FilteringResolver, build_block_reply
-from sentineldns.policy import PolicyEngine
-from sentineldns.recorder import HitRecorder
+from nehemiah_dns.alerts import AlertDispatcher
+from nehemiah_dns.dns_server import FilteringResolver, build_block_reply
+from nehemiah_dns.policy import PolicyEngine
+from nehemiah_dns.recorder import HitRecorder
 
 
 class FakeHandler:

@@ -1,4 +1,4 @@
-// SentinelDNS admin helpers (served from 'self' so the strict CSP stays intact).
+// Nehemiah_DNS admin helpers (served from 'self' so the strict CSP stays intact).
 (function () {
   "use strict";
 

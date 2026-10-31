@@ -158,7 +158,7 @@ def run_dns_server(settings: Settings) -> int:
     if hasattr(signal, "SIGTERM"):
         signal.signal(signal.SIGTERM, lambda *_: stop_event.set())
     LOG.info(
-        "SentinelDNS DNS listening on %s:%d (udp+tcp), upstream %s:%d",
+        "Nehemiah_DNS listening on %s:%d (udp+tcp), upstream %s:%d",
         settings.dns_host,
         settings.dns_port,
         settings.dns_upstream,

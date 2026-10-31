@@ -213,7 +213,7 @@ def validate_source_url(url: str, allowed_hosts: Iterable[str]) -> str:
     if parts.scheme != "https":
         error = "Only https:// URLs are permitted"
     elif not parts.hostname or parts.hostname.lower() not in allowed:
-        error = f"Host not in SENTINEL_ALLOWED_SOURCE_HOSTS: {parts.hostname}"
+        error = f"Host not in NEHEMIAH_ALLOWED_SOURCE_HOSTS: {parts.hostname}"
     elif parts.username or parts.password:
         error = "Credentials in URLs are not permitted"
     elif port not in (None, 443):
@@ -258,7 +258,7 @@ def fetch_source_text(
     hosts = tuple(allowed_hosts)
     error = validate_source_url(url, hosts)
     request = urllib.request.Request(  # noqa: S310 - scheme/host validated above
-        url, headers={"User-Agent": f"SentinelDNS/{__version__}", "Accept": "text/plain"}
+        url, headers={"User-Agent": f"Nehemiah_DNS/{__version__}", "Accept": "text/plain"}
     )
     opener = urllib.request.build_opener(_SafeRedirectHandler(hosts))
     payload = b""
@@ -276,7 +276,7 @@ def fetch_source_text(
         raise FetchError(f"{type(exc).__name__}: {exc}") from exc
 
     if len(payload) > max_bytes:
-        raise FetchError(f"List exceeds SENTINEL_MAX_LIST_BYTES ({max_bytes})")
+        raise FetchError(f"List exceeds NEHEMIAH_MAX_LIST_BYTES ({max_bytes})")
 
     # --- RETURNS ---
     return payload.decode("utf-8", errors="replace")

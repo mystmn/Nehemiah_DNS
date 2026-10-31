@@ -1,4 +1,4 @@
-# SentinelDNS ◈
+# Nehemiah_DNS ◈
 
 > High-throughput, category-based DNS and domain traffic filtering microservice with an embedded Flask & SQLite control plane.
 
@@ -11,7 +11,7 @@
 
 ## Overview
 
-**SentinelDNS** provides lightweight, deterministic, and privacy-preserving DNS filtering designed to run efficiently on edge nodes, local servers, or cloud virtual machines (including Oracle Cloud Infrastructure Always Free Compute). It ingests flat `.txt` blocklists hosted on GitHub, indexes them in memory using optimal Big-O data structures, resolves queries with sub-millisecond latency, and buffers reviewable hits for human administrative oversight.
+**Nehemiah_DNS** provides lightweight, deterministic, and privacy-preserving DNS filtering designed to run efficiently on edge nodes, local servers, or cloud virtual machines (including Oracle Cloud Infrastructure Always Free Compute). It ingests flat `.txt` blocklists hosted on GitHub, indexes them in memory using optimal Big-O data structures, resolves queries with sub-millisecond latency, and buffers reviewable hits for human administrative oversight.
 
 ### Key Features
 
@@ -41,8 +41,8 @@
 ### 1. Installation
 
 ```bash
-git clone https://github.com/your-org/sentineldns.git
-cd sentineldns
+git clone https://github.com/mystmn/Nehemiah_DNS.git
+cd Nehemiah_DNS
 python3 -m venv .venv
 source .venv/bin/activate       # On Windows: .venv\Scripts\Activate.ps1
 pip install -e ".[dev,prod]"
@@ -52,11 +52,11 @@ pip install -e ".[dev,prod]"
 
 ```bash
 cp .env.example .env
-python -m sentineldns gen-secret
-python -m sentineldns hash-password
+python -m nehemiah_dns gen-secret
+python -m nehemiah_dns hash-password
 # Add generated keys to .env, then bootstrap:
-python -m sentineldns init
-python -m sentineldns sync
+python -m nehemiah_dns init
+python -m nehemiah_dns sync
 ```
 
 ### 3. Launching Services
@@ -66,7 +66,7 @@ python -m sentineldns sync
 gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
 
 # Terminal 2: DNS Filtering Server (binds to port 5353 for local testing)
-SENTINEL_DNS_PORT=5353 python -m sentineldns dns
+NEHEMIAH_DNS_PORT=5353 python -m nehemiah_dns dns
 ```
 
 Visit the Admin Dashboard at **`http://127.0.0.1:8080/admin`**.
@@ -93,7 +93,7 @@ pytest -v
 ruff check .
 
 # Run static security analysis
-bandit -r sentineldns/ -c pyproject.toml
+bandit -r nehemiah_dns/ -c pyproject.toml
 ```
 
 ---
@@ -101,4 +101,3 @@ bandit -r sentineldns/ -c pyproject.toml
 ## License
 
 This project is open-source under the [MIT License](LICENSE).
-

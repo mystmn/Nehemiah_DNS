@@ -1,6 +1,6 @@
-# SentinelDNS: Installation & Operations Guide
+# Nehemiah_DNS: Installation & Operations Guide
 
-Welcome to **SentinelDNS**! This guide covers local developer setup, production deployment to an Oracle Cloud Infrastructure (OCI) Compute instance or Ubuntu VM, and operational management.
+Welcome to **Nehemiah_DNS**! This guide covers local developer setup, production deployment to an Oracle Cloud Infrastructure (OCI) Compute instance or Ubuntu VM, and operational management.
 
 ---
 
@@ -14,8 +14,8 @@ Welcome to **SentinelDNS**! This guide covers local developer setup, production 
 
 1. **Clone the Repository & Enter Workspace**:
    ```bash
-   git clone https://github.com/your-org/sentineldns.git
-   cd sentineldns
+   git clone https://github.com/mystmn/Nehemiah_DNS.git
+   cd Nehemiah_DNS
    ```
 
 2. **Create and Activate a Virtual Environment**:
@@ -37,17 +37,17 @@ Welcome to **SentinelDNS**! This guide covers local developer setup, production 
    ```
    Generate a secure secret key and admin password hash:
    ```bash
-   python -m sentineldns gen-secret
-   python -m sentineldns hash-password
+   python -m nehemiah_dns gen-secret
+   python -m nehemiah_dns hash-password
    ```
    Paste the generated values into `.env`:
-   - `SENTINEL_SECRET_KEY`
-   - `SENTINEL_ADMIN_PASSWORD_HASH`
+   - `NEHEMIAH_SECRET_KEY`
+   - `NEHEMIAH_ADMIN_PASSWORD_HASH`
 
 5. **Initialize Database & Load Initial Lists**:
    ```bash
-   python -m sentineldns init
-   python -m sentineldns sync
+   python -m nehemiah_dns init
+   python -m nehemiah_dns sync
    ```
 
 6. **Start the Control Plane & DNS Server**:
@@ -56,7 +56,7 @@ Welcome to **SentinelDNS**! This guide covers local developer setup, production 
    gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
 
    # Terminal 2: DNS Filtering Server (binds to 127.0.0.1:5353 for testing without root)
-   SENTINEL_DNS_PORT=5353 python -m sentineldns dns
+   NEHEMIAH_DNS_PORT=5353 python -m nehemiah_dns dns
    ```
 
 7. **Test Resolution & Admin Dashboard**:
@@ -76,7 +76,7 @@ Welcome to **SentinelDNS**! This guide covers local developer setup, production 
 
 ## 2. Production Deployment on Oracle Cloud (OCI) Compute
 
-This section walks through deploying SentinelDNS onto an **OCI Always Free Ampere A1 (AArch64)** or **Standard AMD (x86_64)** Compute instance running Ubuntu 22.04 LTS / 24.04 LTS.
+This section walks through deploying Nehemiah_DNS onto an **OCI Always Free Ampere A1 (AArch64)** or **Standard AMD (x86_64)** Compute instance running Ubuntu 22.04 LTS / 24.04 LTS.
 
 ### 2.1 OCI VCN Security List & Ingress Rules
 In the OCI Console (Networking -> Virtual Cloud Networks -> Security Lists):
@@ -100,37 +100,37 @@ sudo netfilter-persistent save
 
 ### 2.3 System User and Directory Structure
 ```bash
-sudo useradd -r -s /usr/sbin/nologin -d /opt/sentineldns sentineldns
-sudo mkdir -p /opt/sentineldns /etc/sentineldns /var/lib/sentineldns /var/cache/sentineldns
-sudo chown -R sentineldns:sentineldns /opt/sentineldns /var/lib/sentineldns /var/cache/sentineldns
+sudo useradd -r -s /usr/sbin/nologin -d /opt/nehemiah_dns nehemiah_dns
+sudo mkdir -p /opt/nehemiah_dns /etc/nehemiah_dns /var/lib/nehemiah_dns /var/cache/nehemiah_dns
+sudo chown -R nehemiah_dns:nehemiah_dns /opt/nehemiah_dns /var/lib/nehemiah_dns /var/cache/nehemiah_dns
 ```
 
 ### 2.4 Application Code Installation
 ```bash
-cd /opt/sentineldns
-sudo -u sentineldns git clone https://github.com/your-org/sentineldns.git .
-sudo -u sentineldns python3 -m venv .venv
-sudo -u sentineldns .venv/bin/pip install --upgrade pip
-sudo -u sentineldns .venv/bin/pip install -e ".[prod]"
+cd /opt/nehemiah_dns
+sudo -u nehemiah_dns git clone https://github.com/mystmn/Nehemiah_DNS.git .
+sudo -u nehemiah_dns python3 -m venv .venv
+sudo -u nehemiah_dns .venv/bin/pip install --upgrade pip
+sudo -u nehemiah_dns .venv/bin/pip install -e ".[prod]"
 ```
 
-### 2.5 Production Environment File (`/etc/sentineldns/sentineldns.env`)
-Create `/etc/sentineldns/sentineldns.env` with restricted permissions:
+### 2.5 Production Environment File (`/etc/nehemiah_dns/nehemiah_dns.env`)
+Create `/etc/nehemiah_dns/nehemiah_dns.env` with restricted permissions:
 ```ini
-SENTINEL_DB=/var/lib/sentineldns/sentinel.db
-SENTINEL_CACHE_DIR=/var/cache/sentineldns
-SENTINEL_LOCAL_LISTS=/opt/sentineldns/lists
+NEHEMIAH_DB=/var/lib/nehemiah_dns/nehemiah.db
+NEHEMIAH_CACHE_DIR=/var/cache/nehemiah_dns
+NEHEMIAH_LOCAL_LISTS=/opt/nehemiah_dns/lists
 
-SENTINEL_DNS_HOST=0.0.0.0
-SENTINEL_DNS_PORT=53
-SENTINEL_DNS_UPSTREAM=1.1.1.1
-SENTINEL_DNS_UPSTREAM_PORT=53
-SENTINEL_DNS_BLOCK_MODE=nxdomain
+NEHEMIAH_DNS_HOST=0.0.0.0
+NEHEMIAH_DNS_PORT=53
+NEHEMIAH_DNS_UPSTREAM=1.1.1.1
+NEHEMIAH_DNS_UPSTREAM_PORT=53
+NEHEMIAH_DNS_BLOCK_MODE=nxdomain
 
-SENTINEL_ADMIN_USER=secops
-SENTINEL_ADMIN_PASSWORD_HASH=scrypt:32768:8:1$...
-SENTINEL_SECRET_KEY=your-generated-random-secret-key-at-least-32-chars
-SENTINEL_COOKIE_SECURE=1
+NEHEMIAH_ADMIN_USER=secops
+NEHEMIAH_ADMIN_PASSWORD_HASH=scrypt:32768:8:1$...
+NEHEMIAH_SECRET_KEY=your-generated-random-secret-key-at-least-32-chars
+NEHEMIAH_COOKIE_SECURE=1
 
 SMTP_HOST=smtp.mailgun.org
 SMTP_PORT=587
@@ -141,31 +141,31 @@ ALERT_COOLDOWN_SECONDS=3600
 ```
 Set strict permissions:
 ```bash
-sudo chown root:sentineldns /etc/sentineldns/sentineldns.env
-sudo chmod 640 /etc/sentineldns/sentineldns.env
+sudo chown root:nehemiah_dns /etc/nehemiah_dns/nehemiah_dns.env
+sudo chmod 640 /etc/nehemiah_dns/nehemiah_dns.env
 ```
 
 ### 2.6 Granting Low-Port Binding to Python (`CAP_NET_BIND_SERVICE`)
-To allow the DNS daemon running as non-root user `sentineldns` to bind to port 53:
+To allow the DNS daemon running as non-root user `nehemiah_dns` to bind to port 53:
 ```bash
-sudo setcap 'cap_net_bind_service=+ep' /opt/sentineldns/.venv/bin/python3
+sudo setcap 'cap_net_bind_service=+ep' /opt/nehemiah_dns/.venv/bin/python3
 ```
 
 ### 2.7 Systemd Service Units
 
-#### Service 1: DNS Forwarder (`/etc/systemd/system/sentineldns.service`)
+#### Service 1: DNS Forwarder (`/etc/systemd/system/nehemiah-dns.service`)
 ```ini
 [Unit]
-Description=SentinelDNS Filtering Forwarder
+Description=Nehemiah_DNS Filtering Forwarder
 After=network.target
 
 [Service]
 Type=simple
-User=sentineldns
-Group=sentineldns
-WorkingDirectory=/opt/sentineldns
-EnvironmentFile=/etc/sentineldns/sentineldns.env
-ExecStart=/opt/sentineldns/.venv/bin/python -m sentineldns dns
+User=nehemiah_dns
+Group=nehemiah_dns
+WorkingDirectory=/opt/nehemiah_dns
+EnvironmentFile=/etc/nehemiah_dns/nehemiah_dns.env
+ExecStart=/opt/nehemiah_dns/.venv/bin/python -m nehemiah_dns dns
 Restart=always
 RestartSec=3
 AmbientCapabilities=CAP_NET_BIND_SERVICE
@@ -175,19 +175,19 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ```
 
-#### Service 2: Flask Control Plane (`/etc/systemd/system/sentineldns-web.service`)
+#### Service 2: Flask Control Plane (`/etc/systemd/system/nehemiah-dns-web.service`)
 ```ini
 [Unit]
-Description=SentinelDNS Flask Control Plane
-After=network.target sentineldns.service
+Description=Nehemiah_DNS Flask Control Plane
+After=network.target nehemiah-dns.service
 
 [Service]
 Type=simple
-User=sentineldns
-Group=sentineldns
-WorkingDirectory=/opt/sentineldns
-EnvironmentFile=/etc/sentineldns/sentineldns.env
-ExecStart=/opt/sentineldns/.venv/bin/gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
+User=nehemiah_dns
+Group=nehemiah_dns
+WorkingDirectory=/opt/nehemiah_dns
+EnvironmentFile=/etc/nehemiah_dns/nehemiah_dns.env
+ExecStart=/opt/nehemiah_dns/.venv/bin/gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
 Restart=always
 RestartSec=5
 
@@ -198,16 +198,16 @@ WantedBy=multi-user.target
 #### Enable and Start Services:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now sentineldns.service
-sudo systemctl enable --now sentineldns-web.service
-sudo systemctl status sentineldns.service sentineldns-web.service
+sudo systemctl enable --now nehemiah-dns.service
+sudo systemctl enable --now nehemiah-dns-web.service
+sudo systemctl status nehemiah-dns.service nehemiah-dns-web.service
 ```
 
 ---
 
 ## 3. GitHub Blocklist Management & Syncing
 
-SentinelDNS pulls raw `.txt` domain lists hosted in GitHub repositories:
+Nehemiah_DNS pulls raw `.txt` domain lists hosted in GitHub repositories:
 
 ### File Format:
 Lists can contain plain domains, hosts format, or optional comma-delimited category annotations:
@@ -220,7 +220,7 @@ ads.example.com,ads
 
 ### Adding a Remote Source via CLI:
 ```bash
-sudo -u sentineldns /opt/sentineldns/.venv/bin/python -m sentineldns sync
+sudo -u nehemiah_dns /opt/nehemiah_dns/.venv/bin/python -m nehemiah_dns sync
 ```
 Or use the **Blocklist Sources** section in the Web Dashboard (`/admin/sources`) with one-click **"Sync now"**.
 
@@ -239,6 +239,6 @@ Or use the **Blocklist Sources** section in the Web Dashboard (`/admin/sources`)
    ```
 3. **Inspect Application Logs**:
    ```bash
-   journalctl -u sentineldns.service -f
-   journalctl -u sentineldns-web.service -f
+   journalctl -u nehemiah-dns.service -f
+   journalctl -u nehemiah-dns-web.service -f
    ```

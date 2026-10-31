@@ -1,4 +1,4 @@
-/* SentinelDNS admin — dark glass theme. System font stack (no third-party font
+/* Nehemiah_DNS admin — dark glass theme. System font stack (no third-party font
    requests: a security tool should not leak admin IPs to font CDNs). */
 :root {
   --bg: hsl(228 32% 7%);

@@ -6,7 +6,7 @@
 
 <section class="card">
   <div class="card-head"><h2>Add or update a rule</h2></div>
-  <form method="post" action="{{ url_for('sentinel.rules') }}" class="grid-form">
+  <form method="post" action="{{ url_for('nehemiah.rules') }}" class="grid-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div><label for="rule-domain">Domain</label><input id="rule-domain" name="domain" placeholder="tracker.example.com" required maxlength="253"></div>
     <div><label for="rule-action">Action</label>
@@ -31,7 +31,7 @@
       <td class="dim">{{ r.note }}</td>
       <td class="dim">{{ r.created_at }}</td>
       <td>
-        <form method="post" action="{{ url_for('sentinel.delete_rule') }}">
+        <form method="post" action="{{ url_for('nehemiah.delete_rule') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="domain" value="{{ r.domain }}">
           <button class="btn ghost sm" data-confirm="Delete rule for {{ r.domain }}?">Delete</button>

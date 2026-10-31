@@ -15,7 +15,7 @@
       <td class="num">{{ "{:,}".format(counts.get(name, 0)) }}</td>
       <td><span class="badge {{ action|lower }}">{{ action }}</span></td>
       <td>
-        <form method="post" action="{{ url_for('sentinel.categories') }}" class="inline-actions">
+        <form method="post" action="{{ url_for('nehemiah.categories') }}" class="inline-actions">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="name" value="{{ name }}">
           {% for a in actions %}

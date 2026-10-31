@@ -1,9 +1,9 @@
 import sqlite3
 
-from sentineldns import db
-from sentineldns.alerts import AlertDispatcher, build_review_email
-from sentineldns.policy import Decision, PolicyEngine
-from sentineldns.recorder import HitRecorder
+from nehemiah_dns import db
+from nehemiah_dns.alerts import AlertDispatcher, build_review_email
+from nehemiah_dns.policy import Decision, PolicyEngine
+from nehemiah_dns.recorder import HitRecorder
 
 
 def test_init_database_enables_wal(settings):

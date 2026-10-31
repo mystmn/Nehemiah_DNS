@@ -1,6 +1,6 @@
-# SentinelDNS: Future Enhancements & Roadmap
+# Nehemiah_DNS: Future Enhancements & Roadmap
 
-This document outlines architectural and functional enhancements planned for upcoming iterations of **SentinelDNS**, structured by feature area, complexity trade-offs, and implementation strategies.
+This document outlines architectural and functional enhancements planned for upcoming iterations of **Nehemiah_DNS**, structured by feature area, complexity trade-offs, and implementation strategies.
 
 ---
 
@@ -43,7 +43,7 @@ In addition to native direct SMTP alerts, provide first-class integration with *
 ### Implementation Pattern
 - Follow the `# --- DATA ---`, `# --- CONDITIONS ---`, `# --- RETURNS ---` convention.
 - Bounded background worker queue (`OIC_WEBHOOK_QUEUE`) using standard library `urllib.request` or connection-pooled sessions.
-- Configurable HMAC-SHA256 signature header (`X-Sentinel-Signature`) to guarantee authenticity of the webhook payload sent to the OIC inbound trigger.
+- Configurable HMAC-SHA256 signature header (`X-Nehemiah-Signature`) to guarantee authenticity of the webhook payload sent to the OIC inbound trigger.
 
 ```python
 def dispatch_oic_webhook(payload: dict, webhook_url: str, signing_secret: str) -> bool:
@@ -64,8 +64,8 @@ def dispatch_oic_webhook(payload: dict, webhook_url: str, signing_secret: str) -
         data=body_bytes,
         headers={
             "Content-Type": "application/json",
-            "X-Sentinel-Signature": f"sha256={signature}",
-            "User-Agent": "SentinelDNS-AlertWorker/1.0",
+            "X-Nehemiah-Signature": f"sha256={signature}",
+            "User-Agent": "Nehemiah_DNS-AlertWorker/1.0",
         },
         method="POST",
     )
@@ -90,7 +90,7 @@ def dispatch_oic_webhook(payload: dict, webhook_url: str, signing_secret: str) -
 ## 4. Distributed Multi-Node Sync via SQLite LiteStream / Raft
 
 ### Objective
-Enable running redundant SentinelDNS instances across multiple OCI availability domains or edge locations with synchronized rule administration.
+Enable running redundant Nehemiah_DNS instances across multiple OCI availability domains or edge locations with synchronized rule administration.
 
 ### Architecture Options
 1. **LiteStream / LiteFS**: Continuous background streaming of SQLite WAL frames to an OCI Object Storage bucket. Read-only replicas continuously hydrate from object storage.
@@ -104,11 +104,11 @@ Enable running redundant SentinelDNS instances across multiple OCI availability 
 Expose real-time telemetry at `/metrics` compliant with OpenTelemetry and Prometheus standards.
 
 ### Core Metrics to Export
-- `sentineldns_queries_total{protocol="udp|tcp", rcode="NOERROR|NXDOMAIN"}`
-- `sentineldns_blocklist_size{category="..."}`
-- `sentineldns_lookup_latency_seconds_bucket` (Histogram with sub-millisecond buckets: `[0.0001, 0.0005, 0.001, 0.005]`)
-- `sentineldns_policy_evaluations_total{action="BLOCK|ALLOW|MONITOR|PASS"}`
-- `sentineldns_alert_queue_depth`
+- `nehemiah_dns_queries_total{protocol="udp|tcp", rcode="NOERROR|NXDOMAIN"}`
+- `nehemiah_dns_blocklist_size{category="..."}`
+- `nehemiah_dns_lookup_latency_seconds_bucket` (Histogram with sub-millisecond buckets: `[0.0001, 0.0005, 0.001, 0.005]`)
+- `nehemiah_dns_policy_evaluations_total{action="BLOCK|ALLOW|MONITOR|PASS"}`
+- `nehemiah_dns_alert_queue_depth`
 
 ---
 

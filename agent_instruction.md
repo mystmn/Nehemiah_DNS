@@ -1,6 +1,6 @@
-# AI Agent Instructions: Build, Test & Deploy (SentinelDNS)
+# AI Agent Instructions: Build, Test & Deploy (Nehemiah_DNS)
 
-This document is the authoritative specification for AI agents, CI/CD runners, and autonomous automation scripts working on or deploying **SentinelDNS**.
+This document is the authoritative specification for AI agents, CI/CD runners, and autonomous automation scripts working on or deploying **Nehemiah_DNS**.
 
 ---
 
@@ -57,7 +57,7 @@ pip install -e ".[dev,prod]"
 
 # 3. Code Quality & Security Audits
 ruff check .
-bandit -r sentineldns/ -c pyproject.toml
+bandit -r nehemiah_dns/ -c pyproject.toml
 
 # 4. Automated Test Suite (Functional + Big-O Performance Budgets)
 pytest -v
@@ -84,19 +84,19 @@ pytest -v
 ### 4.2 Systemd Service Units
 Deploy two isolated systemd units: one for the DNS data plane and one for the Flask WSGI control plane.
 
-#### Unit 1: DNS Forwarder (`/etc/systemd/system/sentineldns.service`)
+#### Unit 1: DNS Forwarder (`/etc/systemd/system/nehemiah-dns.service`)
 ```ini
 [Unit]
-Description=SentinelDNS Filtering Data Plane
+Description=Nehemiah_DNS Filtering Data Plane
 After=network.target
 
 [Service]
 Type=simple
-User=sentineldns
-Group=sentineldns
-WorkingDirectory=/opt/sentineldns
-EnvironmentFile=/etc/sentineldns/sentineldns.env
-ExecStart=/opt/sentineldns/.venv/bin/python -m sentineldns dns
+User=nehemiah_dns
+Group=nehemiah_dns
+WorkingDirectory=/opt/nehemiah_dns
+EnvironmentFile=/etc/nehemiah_dns/nehemiah_dns.env
+ExecStart=/opt/nehemiah_dns/.venv/bin/python -m nehemiah_dns dns
 Restart=always
 RestartSec=3
 AmbientCapabilities=CAP_NET_BIND_SERVICE
@@ -106,19 +106,19 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ```
 
-#### Unit 2: Admin Control Plane (`/etc/systemd/system/sentineldns-web.service`)
+#### Unit 2: Admin Control Plane (`/etc/systemd/system/nehemiah-dns-web.service`)
 ```ini
 [Unit]
-Description=SentinelDNS Flask Control Plane
-After=network.target sentineldns.service
+Description=Nehemiah_DNS Flask Control Plane
+After=network.target nehemiah-dns.service
 
 [Service]
 Type=simple
-User=sentineldns
-Group=sentineldns
-WorkingDirectory=/opt/sentineldns
-EnvironmentFile=/etc/sentineldns/sentineldns.env
-ExecStart=/opt/sentineldns/.venv/bin/gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
+User=nehemiah_dns
+Group=nehemiah_dns
+WorkingDirectory=/opt/nehemiah_dns
+EnvironmentFile=/etc/nehemiah_dns/nehemiah_dns.env
+ExecStart=/opt/nehemiah_dns/.venv/bin/gunicorn -w 2 --threads 4 -b 127.0.0.1:8080 wsgi:app
 Restart=always
 RestartSec=5
 
@@ -165,7 +165,7 @@ jobs:
         run: ruff check .
 
       - name: Static Security Analysis
-        run: bandit -r sentineldns/ -c pyproject.toml
+        run: bandit -r nehemiah_dns/ -c pyproject.toml
 
       - name: Run Pytest Suite
         run: pytest -v --durations=10
@@ -176,5 +176,5 @@ jobs:
 ## 6. Oracle Integration Cloud (OIC) Hook Architecture
 When deployed in enterprise environments pairing OCI Compute with OIC:
 1. Set `ALERT_EMAIL` or configure the outbound webhook trigger to hit the OIC REST Trigger endpoint.
-2. Ensure OIC ingress OAuth2 / basic tokens are stored securely in `/etc/sentineldns/sentineldns.env` with file permissions `0600` owned by `sentineldns:sentineldns`.
+2. Ensure OIC ingress OAuth2 / basic tokens are stored securely in `/etc/nehemiah_dns/nehemiah_dns.env` with file permissions `0600` owned by `nehemiah_dns:nehemiah_dns`.
 3. Never log raw API credentials or tokens in SQLite audit logs or application standard output.

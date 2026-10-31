@@ -1,6 +1,6 @@
 """QA File-by-File Invariant & Unit Audit.
 
-Validates that every Python source file in sentineldns/ satisfies:
+Validates that every Python source file in nehemiah_dns/ satisfies:
 1. Valid Python AST parsing.
 2. Coding invariants: '# --- DATA ---', '# --- CONDITIONS ---', '# --- RETURNS ---'.
 3. Big-O Complexity contract in every function docstring: 'Complexity: Time O(...) | Space O(...)'.
@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from sentineldns import (
+from nehemiah_dns import (
     alerts,
     blocklist,
     config,
@@ -29,7 +29,7 @@ from sentineldns import (
 )
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-SENTINELDNS_DIR = ROOT_DIR / "sentineldns"
+NEHEMIAH_DIR = ROOT_DIR / "nehemiah_dns"
 
 MODULES = [
     config,
@@ -48,7 +48,7 @@ MODULES = [
 
 def _get_py_files() -> list[Path]:
     return sorted(
-        [p for p in SENTINELDNS_DIR.glob("*.py") if p.name not in ("__init__.py",)]
+        [p for p in NEHEMIAH_DIR.glob("*.py") if p.name not in ("__init__.py",)]
     )
 
 

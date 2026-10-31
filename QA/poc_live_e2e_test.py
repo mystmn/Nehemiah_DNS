@@ -1,6 +1,6 @@
-"""SentinelDNS: Standalone Live Proof-of-Concept (POC) End-to-End Test.
+"""Nehemiah_DNS: Standalone Live Proof-of-Concept (POC) End-to-End Test.
 
-This script executes a full end-to-end verification of SentinelDNS:
+This script executes a full end-to-end verification of Nehemiah_DNS:
 1. Bootstraps an isolated SQLite database and local blocklists.
 2. Starts an in-process live UDP DNS server on 127.0.0.1:15353.
 3. Sends live DNS wire-protocol queries for blocked, subdomain, and allowed traffic.
@@ -29,14 +29,14 @@ from werkzeug.security import generate_password_hash
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from sentineldns import db
-from sentineldns.alerts import AlertDispatcher
-from sentineldns.config import Settings
-from sentineldns.dns_server import FilteringResolver
-from sentineldns.policy import PolicyEngine
-from sentineldns.recorder import HitRecorder
-from sentineldns.service import bootstrap
-from sentineldns.web import create_app
+from nehemiah_dns import db
+from nehemiah_dns.alerts import AlertDispatcher
+from nehemiah_dns.config import Settings
+from nehemiah_dns.dns_server import FilteringResolver
+from nehemiah_dns.policy import PolicyEngine
+from nehemiah_dns.recorder import HitRecorder
+from nehemiah_dns.service import bootstrap
+from nehemiah_dns.web import create_app
 
 
 def send_dns_query(qname: str, host: str, port: int, timeout: float = 2.0) -> DNSRecord:
@@ -62,10 +62,10 @@ def send_dns_query(qname: str, host: str, port: int, timeout: float = 2.0) -> DN
 
 def main() -> int:
     print("=" * 70)
-    print("[*] SentinelDNS: Live End-to-End Proof of Concept (POC) [*]")
+    print("[*] Nehemiah_DNS: Live End-to-End Proof of Concept (POC) [*]")
     print("=" * 70)
 
-    sandbox_dir = Path(tempfile.mkdtemp(prefix="sentineldns_poc_"))
+    sandbox_dir = Path(tempfile.mkdtemp(prefix="nehemiah_poc_"))
     dns_port = 15353
     dns_host = "127.0.0.1"
     admin_pass = "PocAdminSecurePass123!"
@@ -77,7 +77,7 @@ def main() -> int:
         lists_dir.mkdir(parents=True)
         cache_dir = sandbox_dir / "cache"
         cache_dir.mkdir(parents=True)
-        db_path = str(sandbox_dir / "sentinel_poc.db")
+        db_path = str(sandbox_dir / "nehemiah_poc.db")
 
         # Create sample local blocklists
         (lists_dir / "ads.txt").write_text(

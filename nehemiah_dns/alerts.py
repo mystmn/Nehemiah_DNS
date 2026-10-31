@@ -28,11 +28,11 @@ def build_review_email(settings: Settings, review: Mapping) -> EmailMessage:
     review_url = f"{settings.public_url}/admin#review-{matched}"
 
     # --- CONDITIONS ---
-    message["Subject"] = f"[SentinelDNS Review] {review['action']} hit on {matched}"
+    message["Subject"] = f"[Nehemiah_DNS Review] {review['action']} hit on {matched}"
     message["From"] = settings.alert_from
     message["To"] = settings.alert_to
     message.set_content(
-        "SentinelDNS domain hit - review requested\n"
+        "Nehemiah_DNS domain hit - review requested\n"
         "-----------------------------------------\n"
         f"Matched rule : {matched}\n"
         f"Last query   : {review['last_query']}\n"

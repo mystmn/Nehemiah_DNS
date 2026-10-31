@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from sentineldns import db
-from sentineldns.web import create_app
+from nehemiah_dns import db
+from nehemiah_dns.web import create_app
 from tests.conftest import ADMIN_PASSWORD
 
 
@@ -95,7 +95,7 @@ def test_add_rule_and_review_confirm(app, client):
                                       "category": "custom", "csrf_token": token})
     assert client.get("/api/v1/check?domain=a.tracker.example.com").status_code == 403
 
-    services = app.extensions["sentineldns"]
+    services = app.extensions["nehemiah_dns"]
     services.recorder.drain()
     resp = client.post("/admin/reviews", data={"matched": "tracker.example.com",
                                                "action": "allow", "csrf_token": token})
@@ -103,7 +103,9 @@ def test_add_rule_and_review_confirm(app, client):
     assert client.get("/api/v1/check?domain=a.tracker.example.com").status_code == 200
 
     conn = db.connect(services.settings.db_path)
-    status = conn.execute("SELECT status FROM reviews WHERE matched='tracker.example.com'").fetchone()
+    status = conn.execute(
+        "SELECT status FROM reviews WHERE matched='tracker.example.com'"
+    ).fetchone()
     conn.close()
     assert status["status"] == "ALLOWED"
 
@@ -111,9 +113,12 @@ def test_add_rule_and_review_confirm(app, client):
 def test_rejects_disallowed_source(client, settings):
     _login(client)
     token = _csrf(client, "/admin/sources")
-    resp = client.post("/admin/sources", data={"url": "https://evil.example.com/list.txt",
-                                        "category": "ads", "csrf_token": token}, follow_redirects=True)
-    assert b"Host not in SENTINEL_ALLOWED_SOURCE_HOSTS" in resp.data
+    resp = client.post(
+        "/admin/sources",
+        data={"url": "https://evil.example.com/list.txt", "category": "ads", "csrf_token": token},
+        follow_redirects=True,
+    )
+    assert b"Host not in NEHEMIAH_ALLOWED_SOURCE_HOSTS" in resp.data
     conn = db.connect(settings.db_path)
     try:
         assert db.list_sources(conn) == []

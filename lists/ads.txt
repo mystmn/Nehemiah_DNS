@@ -1,4 +1,4 @@
-# SentinelDNS local list. Category defaults to the file name ("ads").
+# Nehemiah_DNS local list. Category defaults to the file name ("ads").
 # Formats: domain | domain,category | 0.0.0.0 domain   (# comments allowed)
 # A listed domain also matches every subdomain.
 doubleclick.net

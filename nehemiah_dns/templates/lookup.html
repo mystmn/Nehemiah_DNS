@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="page-title">Domain lookup</h1>
 <section class="card">
-  <form method="get" action="{{ url_for('sentinel.lookup') }}" class="search">
+  <form method="get" action="{{ url_for('nehemiah.lookup') }}" class="search">
     <label for="lookup-q" class="sr-only">Domain</label>
     <input id="lookup-q" name="q" value="{{ query }}" placeholder="sub.example.com" autofocus maxlength="253">
     <button class="btn primary" id="btn-lookup">Evaluate</button>

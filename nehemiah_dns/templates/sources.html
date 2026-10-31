@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-head">
   <h1 class="page-title">Blocklist sources</h1>
-  <form method="post" action="{{ url_for('sentinel.sync_now') }}">
+  <form method="post" action="{{ url_for('nehemiah.sync_now') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="btn primary" id="btn-sync">⟳ Sync now</button>
   </form>
@@ -14,7 +14,7 @@ Local <code>*.txt</code> files in <code>{{ local_dir }}</code> are always loaded
 
 <section class="card">
   <div class="card-head"><h2>Add source</h2></div>
-  <form method="post" action="{{ url_for('sentinel.sources') }}" class="grid-form">
+  <form method="post" action="{{ url_for('nehemiah.sources') }}" class="grid-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="span-2"><label for="source-url">Raw URL</label><input id="source-url" name="url" type="url" required placeholder="https://raw.githubusercontent.com/you/lists/main/ads.txt" maxlength="2048"></div>
     <div><label for="source-category">Default category</label><input id="source-category" name="category" placeholder="ads" maxlength="32"></div>
@@ -35,11 +35,11 @@ Local <code>*.txt</code> files in <code>{{ local_dir }}</code> are always loaded
       <td class="dim">{{ s.last_sync or 'never' }}</td>
       <td><span class="badge {{ 'allow' if (s.last_status or '') == 'ok' else 'monitor' if (s.last_status or '').startswith('cached') else 'block' if s.last_status else 'pass' }}">{{ (s.last_status or 'pending')[:60] }}</span></td>
       <td class="inline-actions">
-        <form method="post" action="{{ url_for('sentinel.source_op', source_id=s.id, op='disable' if s.enabled else 'enable') }}">
+        <form method="post" action="{{ url_for('nehemiah.source_op', source_id=s.id, op='disable' if s.enabled else 'enable') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="btn ghost sm">{{ 'Disable' if s.enabled else 'Enable' }}</button>
         </form>
-        <form method="post" action="{{ url_for('sentinel.source_op', source_id=s.id, op='delete') }}">
+        <form method="post" action="{{ url_for('nehemiah.source_op', source_id=s.id, op='delete') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="btn danger sm" data-confirm="Delete this source?">Delete</button>
         </form>

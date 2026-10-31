@@ -4,8 +4,8 @@ import time
 
 import pytest
 
-from sentineldns import blocklist
-from sentineldns.blocklist import (
+from nehemiah_dns import blocklist
+from nehemiah_dns.blocklist import (
     FetchError,
     build_snapshot,
     cache_path_for,
@@ -45,7 +45,9 @@ def test_subtree_range_scan_excludes_lookalikes():
         [("example.com", "a"), ("ads.example.com", "a"), ("x.y.example.com", "a"),
          ("example-foo.com", "a"), ("example.com.evil.net", "a")]
     )
-    assert sorted(subtree(snap, "example.com")) == ["ads.example.com", "example.com", "x.y.example.com"]
+    assert sorted(subtree(snap, "example.com")) == [
+        "ads.example.com", "example.com", "x.y.example.com"
+    ]
     assert subtree(snap, "example.com", limit=1) == ["example.com"]
 
 
@@ -100,7 +102,10 @@ def test_big_o_budget_500k_domains_10k_queries():
     snap = build_snapshot(entries)
     build_seconds = time.perf_counter() - start
 
-    queries = [f"sub.{d}" for d, _ in entries[:5_000]] + [f"miss{i}.example.net" for i in range(5_000)]
+    queries = (
+        [f"sub.{d}" for d, _ in entries[:5_000]]
+        + [f"miss{i}.example.net" for i in range(5_000)]
+    )
 
     start = time.perf_counter()
     hash_hits = sum(1 for q in queries if lookup_hash(snap, q))

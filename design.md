@@ -1,12 +1,12 @@
-# SentinelDNS: System Architecture & Design Specification
+# Nehemiah_DNS: System Architecture & Design Specification
 
-Welcome to the architectural design guide for **SentinelDNS**. This document explains the internal mechanisms, algorithmic trade-offs, security model, and data flow of this open-source category-based DNS and traffic filter.
+Welcome to the architectural design guide for **Nehemiah_DNS**. This document explains the internal mechanisms, algorithmic trade-offs, security model, and data flow of this open-source category-based DNS and traffic filter.
 
 ---
 
 ## 1. System Vision & Guiding Principles
 
-SentinelDNS is built to deliver fast, deterministic domain-level traffic control without requiring heavy external dependencies (such as Redis or Elasticsearch). It is split into two coordinated planes:
+Nehemiah_DNS is built to deliver fast, deterministic domain-level traffic control without requiring heavy external dependencies (such as Redis or Elasticsearch). It is split into two coordinated planes:
 
 1. **DNS Data Plane**: A high-throughput UDP/TCP DNS forwarder built on `dnslib` that evaluates lookups in memory with sub-millisecond response latency ($<1\text{ms}$).
 2. **Flask Control Plane**: A lightweight, hardened web dashboard and REST API backed by an embedded SQLite database running in WAL mode for administrative rule management, list curation, and human audit review.
@@ -52,7 +52,7 @@ SentinelDNS is built to deliver fast, deterministic domain-level traffic control
 
 ## 2. In-Memory Search Algorithms & Big-O Complexity
 
-Evaluating millions of domain rules on every DNS lookup requires strict performance guarantees. SentinelDNS avoids unpredictable hash-table memory bloat and hash-collision vulnerabilities by combining two deterministic lookup patterns:
+Evaluating millions of domain rules on every DNS lookup requires strict performance guarantees. Nehemiah_DNS avoids unpredictable hash-table memory bloat and hash-collision vulnerabilities by combining two deterministic lookup patterns:
 
 | Step | Operation | Data Structure / Algorithm | Time Complexity | Space Complexity | Rationale |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -95,9 +95,9 @@ A recurring failure mode in network monitoring is alert fatigue and thread exhau
 
 ## 5. Security Architecture
 
-SentinelDNS enforces strict defense-in-depth across the web and network boundaries:
+Nehemiah_DNS enforces strict defense-in-depth across the web and network boundaries:
 
-1. **SSRF Hardening**: Remote blocklist downloads are restricted to pre-approved hostnames (`SENTINEL_ALLOWED_SOURCE_HOSTS`, e.g., `raw.githubusercontent.com`). Private IP addresses, non-HTTPS protocols, and internal network ranges are rejected before issuing HTTP requests.
+1. **SSRF Hardening**: Remote blocklist downloads are restricted to pre-approved hostnames (`NEHEMIAH_ALLOWED_SOURCE_HOSTS`, e.g., `raw.githubusercontent.com`). Private IP addresses, non-HTTPS protocols, and internal network ranges are rejected before issuing HTTP requests.
 2. **Content-Security-Policy (CSP)**: The Flask administration dashboard enforces a zero-inline CSP:
    ```http
    Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none';

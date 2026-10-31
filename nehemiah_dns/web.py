@@ -39,7 +39,7 @@ from .security import SECURITY_HEADERS, LoginThrottle, new_token, tokens_match
 from .service import bootstrap, run_sync_async
 
 LOG = logging.getLogger(__name__)
-bp = Blueprint("sentinel", __name__)
+bp = Blueprint("nehemiah", __name__)
 LOOPBACK = frozenset({"127.0.0.1", "::1"})
 # Dummy hash so login timing is identical whether or not the username exists.
 _DUMMY_HASH = generate_password_hash(new_token())
@@ -62,7 +62,7 @@ def services() -> Services:
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
-    container = current_app.extensions["sentineldns"]
+    container = current_app.extensions["nehemiah_dns"]
 
     # --- CONDITIONS ---
     # (none)
@@ -88,17 +88,17 @@ def create_app(settings: Settings | None = None, *, start_workers: bool = True) 
 
     # --- CONDITIONS ---
     if len(cfg.secret_key) < 32:
-        raise RuntimeError("SENTINEL_SECRET_KEY must be set (>= 32 chars). See docs/INSTALL.md")
+        raise RuntimeError("NEHEMIAH_SECRET_KEY must be set (>= 32 chars). See docs/INSTALL.md")
     if not cfg.admin_password_hash:
         raise RuntimeError(
-            "SENTINEL_ADMIN_PASSWORD_HASH must be set. Run: python -m sentineldns hash-password"
+            "NEHEMIAH_ADMIN_PASSWORD_HASH must be set. Run: python -m nehemiah_dns hash-password"
         )
     if not bootstrap(cfg):
         raise RuntimeError(f"Cannot initialize database at {cfg.db_path}")
 
     app.config.update(
         SECRET_KEY=cfg.secret_key,
-        SESSION_COOKIE_NAME="sentinel_session",
+        SESSION_COOKIE_NAME="nehemiah_session",
         SESSION_COOKIE_SECURE=cfg.cookie_secure,
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Strict",
@@ -114,7 +114,7 @@ def create_app(settings: Settings | None = None, *, start_workers: bool = True) 
         dispatcher.start()
         container.recorder.start()
 
-    app.extensions["sentineldns"] = container
+    app.extensions["nehemiah_dns"] = container
     app.register_blueprint(bp)
     app.before_request(_csrf_protect)
     app.after_request(_apply_security_headers)
@@ -193,7 +193,7 @@ def login_required(view):  # noqa: ANN001, ANN201
 
         # --- CONDITIONS ---
         if not user:
-            return redirect(url_for("sentinel.login"))
+            return redirect(url_for("nehemiah.login"))
 
         # --- RETURNS ---
         return view(*args, **kwargs)
@@ -203,7 +203,7 @@ def login_required(view):  # noqa: ANN001, ANN201
 
 def _client_ip() -> str:
     """
-    Resolves the caller IP (honours ProxyFix when SENTINEL_TRUST_PROXY=1).
+    Resolves the caller IP (honours ProxyFix when NEHEMIAH_TRUST_PROXY=1).
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
@@ -372,7 +372,7 @@ def login():  # noqa: ANN201
             session["user"] = settings.admin_user
             session["csrf_token"] = new_token()
             LOG.info("Admin login from %s", ip)
-            response = redirect(url_for("sentinel.dashboard"))
+            response = redirect(url_for("nehemiah.dashboard"))
         else:
             svc.throttle.record_failure(ip)
             LOG.warning("Failed admin login from %s", ip)
@@ -390,7 +390,7 @@ def logout():  # noqa: ANN201
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
-    target = url_for("sentinel.login")
+    target = url_for("nehemiah.login")
 
     # --- CONDITIONS ---
     session.clear()
@@ -409,7 +409,7 @@ def index():  # noqa: ANN201
     Complexity: Time O(1) | Space O(1)
     """
     # --- DATA ---
-    target = url_for("sentinel.dashboard")
+    target = url_for("nehemiah.dashboard")
 
     # --- CONDITIONS ---
     # (none)
@@ -488,7 +488,7 @@ def review_action():  # noqa: ANN201
     flash(f"{matched}: {status.lower()}", "success")
 
     # --- RETURNS ---
-    return redirect(url_for("sentinel.dashboard"))
+    return redirect(url_for("nehemiah.dashboard"))
 
 
 @bp.route("/admin/rules", methods=["GET", "POST"])
@@ -517,7 +517,7 @@ def rules():  # noqa: ANN201
                 conn.close()
             _changed(db.POLICY_VERSION)
             flash(f"Rule saved: {action} {domain}", "success")
-        return redirect(url_for("sentinel.rules"))
+        return redirect(url_for("nehemiah.rules"))
 
     conn = db.connect(svc.settings.db_path)
     try:
@@ -552,7 +552,7 @@ def delete_rule():  # noqa: ANN201
     flash(f"Rule removed: {domain}", "success")
 
     # --- RETURNS ---
-    return redirect(url_for("sentinel.rules"))
+    return redirect(url_for("nehemiah.rules"))
 
 
 @bp.route("/admin/categories", methods=["GET", "POST"])
@@ -579,7 +579,7 @@ def categories():  # noqa: ANN201
             conn.close()
         _changed(db.POLICY_VERSION)
         flash(f"Category '{name}' -> {action}", "success")
-        return redirect(url_for("sentinel.categories"))
+        return redirect(url_for("nehemiah.categories"))
 
     for category in svc.engine.state.snapshot.categories.values():
         counts[category] = counts.get(category, 0) + 1
@@ -621,7 +621,7 @@ def sources():  # noqa: ANN201
                 conn.close()
             flash("Source added. Run Sync to fetch it." if added else "Source already exists.",
                   "success" if added else "error")
-        return redirect(url_for("sentinel.sources"))
+        return redirect(url_for("nehemiah.sources"))
 
     conn = db.connect(settings.db_path)
     try:
@@ -661,7 +661,7 @@ def source_op(source_id: int, op: str):  # noqa: ANN201
     flash(f"Source {op}d.", "success")
 
     # --- RETURNS ---
-    return redirect(url_for("sentinel.sources"))
+    return redirect(url_for("nehemiah.sources"))
 
 
 @bp.post("/admin/sync")
@@ -679,7 +679,7 @@ def sync_now():  # noqa: ANN201
           "success" if started else "error")
 
     # --- RETURNS ---
-    return redirect(url_for("sentinel.sources"))
+    return redirect(url_for("nehemiah.sources"))
 
 
 @bp.get("/admin/lookup")

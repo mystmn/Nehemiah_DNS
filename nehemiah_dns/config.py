@@ -18,7 +18,7 @@ VALID_BLOCK_MODES = ("nxdomain", "zero")
 class Settings:
     """Immutable settings object shared by the data plane and control plane."""
 
-    db_path: str = "sentinel.db"
+    db_path: str = "nehemiah.db"
     cache_dir: str = "cache"
     local_lists_dir: str = "lists"
     secret_key: str = ""
@@ -39,7 +39,7 @@ class Settings:
     smtp_user: str = ""
     smtp_secret: str = ""
     smtp_starttls: bool = True
-    alert_from: str = "sentineldns@localhost"
+    alert_from: str = "nehemiah_dns@localhost"
     alert_to: str = ""
     alert_cooldown: int = 3600
     dns_host: str = "127.0.0.1"
@@ -182,13 +182,29 @@ def load_env_file(path: str, env: dict[str, str] | None = None) -> int:
 
 def load_settings(env: Mapping[str, str] | None = None) -> Settings:
     """
-    Builds a Settings object from environment variables (prefix SENTINEL_ / SMTP_ / ALERT_).
+    Builds a Settings object from environment variables (prefix NEHEMIAH_).
     Complexity: Time O(K) | Space O(K) where K is the number of variables
     """
     # --- DATA ---
     source = os.environ if env is None else env
-    block_mode = source.get("SENTINEL_DNS_BLOCK_MODE", "nxdomain").strip().lower()
-    default_action = source.get("SENTINEL_DEFAULT_CATEGORY_ACTION", "BLOCK").strip().upper()
+
+    def _val(suffix: str, default: str = "") -> str:
+        return source.get(f"NEHEMIAH_{suffix}", default)
+
+    def _bool(suffix: str, default: bool) -> bool:
+        return _env_bool(source, f"NEHEMIAH_{suffix}", default)
+
+    def _int(suffix: str, default: int, minimum: int = 0) -> int:
+        return _env_int(source, f"NEHEMIAH_{suffix}", default, minimum)
+
+    def _float(suffix: str, default: float, minimum: float = 0.1) -> float:
+        return _env_float(source, f"NEHEMIAH_{suffix}", default, minimum)
+
+    def _list(suffix: str, default: tuple[str, ...]) -> tuple[str, ...]:
+        return _env_list(source, f"NEHEMIAH_{suffix}", default)
+
+    block_mode = _val("DNS_BLOCK_MODE", "nxdomain").strip().lower()
+    default_action = _val("DEFAULT_CATEGORY_ACTION", "BLOCK").strip().upper()
 
     # --- CONDITIONS ---
     if block_mode not in VALID_BLOCK_MODES:
@@ -197,40 +213,38 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
         default_action = "BLOCK"
 
     settings = Settings(
-        db_path=source.get("SENTINEL_DB", "sentinel.db"),
-        cache_dir=source.get("SENTINEL_CACHE_DIR", "cache"),
-        local_lists_dir=source.get("SENTINEL_LOCAL_LISTS", "lists"),
-        secret_key=source.get("SENTINEL_SECRET_KEY", ""),
-        admin_user=source.get("SENTINEL_ADMIN_USER", "admin"),
-        admin_password_hash=source.get("SENTINEL_ADMIN_PASSWORD_HASH", ""),
-        api_token=source.get("SENTINEL_API_TOKEN", ""),
-        cookie_secure=_env_bool(source, "SENTINEL_COOKIE_SECURE", True),
-        trust_proxy=_env_bool(source, "SENTINEL_TRUST_PROXY", False),
-        public_url=source.get("SENTINEL_PUBLIC_URL", "http://127.0.0.1:8080").rstrip("/"),
-        seed_sources=parse_seed_sources(source.get("SENTINEL_SOURCES", "")),
-        allowed_source_hosts=_env_list(
-            source, "SENTINEL_ALLOWED_SOURCE_HOSTS", ("raw.githubusercontent.com",)
-        ),
-        max_list_bytes=_env_int(source, "SENTINEL_MAX_LIST_BYTES", 50 * 1024 * 1024, 1024),
-        fetch_timeout=_env_float(source, "SENTINEL_FETCH_TIMEOUT", 15.0),
-        reload_interval=_env_float(source, "SENTINEL_RELOAD_INTERVAL", 5.0, 0.5),
+        db_path=_val("DB", "nehemiah.db"),
+        cache_dir=_val("CACHE_DIR", "cache"),
+        local_lists_dir=_val("LOCAL_LISTS", "lists"),
+        secret_key=_val("SECRET_KEY", ""),
+        admin_user=_val("ADMIN_USER", "admin"),
+        admin_password_hash=_val("ADMIN_PASSWORD_HASH", ""),
+        api_token=_val("API_TOKEN", ""),
+        cookie_secure=_bool("COOKIE_SECURE", True),
+        trust_proxy=_bool("TRUST_PROXY", False),
+        public_url=_val("PUBLIC_URL", "http://127.0.0.1:8080").rstrip("/"),
+        seed_sources=parse_seed_sources(_val("SOURCES", "")),
+        allowed_source_hosts=_list("ALLOWED_SOURCE_HOSTS", ("raw.githubusercontent.com",)),
+        max_list_bytes=_int("MAX_LIST_BYTES", 50 * 1024 * 1024, 1024),
+        fetch_timeout=_float("FETCH_TIMEOUT", 15.0),
+        reload_interval=_float("RELOAD_INTERVAL", 5.0, 0.5),
         default_category_action=default_action,
         smtp_host=source.get("SMTP_HOST", ""),
         smtp_port=_env_int(source, "SMTP_PORT", 587, 1),
         smtp_user=source.get("SMTP_USER", ""),
         smtp_secret=source.get("SMTP_PASS", ""),
         smtp_starttls=_env_bool(source, "SMTP_STARTTLS", True),
-        alert_from=source.get("ALERT_FROM", "sentineldns@localhost"),
+        alert_from=source.get("ALERT_FROM", "nehemiah_dns@localhost"),
         alert_to=source.get("ALERT_EMAIL", ""),
         alert_cooldown=_env_int(source, "ALERT_COOLDOWN_SECONDS", 3600, 0),
-        dns_host=source.get("SENTINEL_DNS_HOST", "127.0.0.1"),
-        dns_port=_env_int(source, "SENTINEL_DNS_PORT", 5353, 1),
-        dns_upstream=source.get("SENTINEL_DNS_UPSTREAM", "1.1.1.1"),
-        dns_upstream_port=_env_int(source, "SENTINEL_DNS_UPSTREAM_PORT", 53, 1),
-        dns_timeout=_env_float(source, "SENTINEL_DNS_TIMEOUT", 3.0),
+        dns_host=_val("DNS_HOST", "127.0.0.1"),
+        dns_port=_int("DNS_PORT", 5353, 1),
+        dns_upstream=_val("DNS_UPSTREAM", "1.1.1.1"),
+        dns_upstream_port=_int("DNS_UPSTREAM_PORT", 53, 1),
+        dns_timeout=_float("DNS_TIMEOUT", 3.0),
         dns_block_mode=block_mode,
-        hit_queue_size=_env_int(source, "SENTINEL_HIT_QUEUE_SIZE", 10000, 100),
-        retention_days=_env_int(source, "SENTINEL_RETENTION_DAYS", 30, 1),
+        hit_queue_size=_int("HIT_QUEUE_SIZE", 10000, 100),
+        retention_days=_int("RETENTION_DAYS", 30, 1),
     )
 
     # --- RETURNS ---

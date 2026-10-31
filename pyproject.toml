@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sentineldns"
+name = "nehemiah_dns"
 version = "0.1.0"
 description = "Category-based DNS and domain traffic filter with a Flask/SQLite admin plane"
 readme = "README.md"
@@ -19,13 +19,14 @@ prod = ["gunicorn>=22"]
 dev = ["pytest>=8", "ruff>=0.6", "bandit>=1.7.9"]
 
 [project.scripts]
-sentineldns = "sentineldns.__main__:main"
+nehemiah-dns = "nehemiah_dns.__main__:main"
+nehemiah_dns = "nehemiah_dns.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["sentineldns*"]
+include = ["nehemiah_dns*"]
 
 [tool.setuptools.package-data]
-sentineldns = ["templates/*.html", "static/*"]
+nehemiah_dns = ["templates/*.html", "static/*"]
 
 [tool.ruff]
 line-length = 100
@@ -36,7 +37,7 @@ extend-exclude = [".venv", "cache"]
 select = ["E", "F", "W", "I", "B", "S", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "S105", "S106", "S310", "S311"]
+"tests/*" = ["S101", "S104", "S105", "S106", "S310", "S311"]
 "QA/*" = ["S101", "S104", "S105", "S106", "S310", "S311", "E402"]
 
 [tool.pytest.ini_options]

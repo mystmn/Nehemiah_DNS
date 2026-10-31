@@ -1,13 +1,13 @@
-# SentinelDNS: QA & Proof-of-Concept (POC) Test Suite
+# Nehemiah_DNS: QA & Proof-of-Concept (POC) Test Suite
 
-This folder contains throwaway QA verification scripts and a live end-to-end Proof of Concept (POC) for SentinelDNS.
+This folder contains throwaway QA verification scripts and a live end-to-end Proof of Concept (POC) for Nehemiah_DNS.
 
 ---
 
 ## Files in this Directory
 
 1. **`test_file_by_file_audit.py`**:
-   - Performs a static AST audit across every Python module in `sentineldns/`.
+   - Performs a static AST audit across every Python module in `nehemiah_dns/`.
    - Validates that every function/method adheres to the `# --- DATA ---`, `# --- CONDITIONS ---`, `# --- RETURNS ---` three-block invariant.
    - Enforces that every function docstring contains explicit `Complexity: Time O(...) | Space O(...)` declarations.
    - Runs unit contract verifications for domain parsing, blocklist indexing, SQLite WAL database persistence, policy evaluation, and security tokens.
@@ -55,4 +55,3 @@ rm -rf QA
 ```powershell
 Remove-Item -Recurse -Force QA
 ```
-

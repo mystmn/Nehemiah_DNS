@@ -3,9 +3,9 @@
 {% block content %}
 <section class="login-wrap">
   <div class="card login-card">
-    <div class="brand big"><span class="brand-mark" aria-hidden="true">◈</span> Sentinel<span class="accent">DNS</span></div>
+    <div class="brand big"><span class="brand-mark" aria-hidden="true">◈</span> Nehemiah<span class="accent">_DNS</span></div>
     <h1>Control plane sign in</h1>
-    <form method="post" action="{{ url_for('sentinel.login') }}" class="stack" autocomplete="on">
+    <form method="post" action="{{ url_for('nehemiah.login') }}" class="stack" autocomplete="on">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label for="login-username">Username</label>
       <input id="login-username" name="username" required autocomplete="username" maxlength="64">
