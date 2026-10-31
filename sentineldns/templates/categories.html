@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<h1 class="page-title">Category policy</h1>
+<p class="lead"><strong>BLOCK</strong> stops traffic and queues a review e-mail · <strong>MONITOR</strong> lets traffic through but queues a review · <strong>ALLOW</strong> ignores the category.</p>
+
+<section class="card">
+  {% if categories %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Category</th><th>Domains</th><th>Current action</th><th>Change</th></tr></thead>
+    <tbody>
+    {% for name, action in categories.items() %}
+    <tr>
+      <td><span class="chip">{{ name }}</span></td>
+      <td class="num">{{ "{:,}".format(counts.get(name, 0)) }}</td>
+      <td><span class="badge {{ action|lower }}">{{ action }}</span></td>
+      <td>
+        <form method="post" action="{{ url_for('sentinel.categories') }}" class="inline-actions">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="name" value="{{ name }}">
+          {% for a in actions %}
+          <button class="btn sm {{ 'primary' if a == action else 'ghost' }}" name="action" value="{{ a }}" id="cat-{{ name }}-{{ a|lower }}">{{ a }}</button>
+          {% endfor %}
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">No categories yet. Add a source or a file in the local lists directory, then sync.</p>{% endif %}
+</section>
+{% endblock %}

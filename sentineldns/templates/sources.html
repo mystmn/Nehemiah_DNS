@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Sources{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Blocklist sources</h1>
+  <form method="post" action="{{ url_for('sentinel.sync_now') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn primary" id="btn-sync">⟳ Sync now</button>
+  </form>
+</div>
+<p class="lead">Remote lists are pulled over HTTPS into a local cache. If a fetch fails the last good copy is kept.
+Allowed hosts: {% for h in allowed_hosts %}<code>{{ h }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
+Local <code>*.txt</code> files in <code>{{ local_dir }}</code> are always loaded (category = file name).</p>
+
+<section class="card">
+  <div class="card-head"><h2>Add source</h2></div>
+  <form method="post" action="{{ url_for('sentinel.sources') }}" class="grid-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="span-2"><label for="source-url">Raw URL</label><input id="source-url" name="url" type="url" required placeholder="https://raw.githubusercontent.com/you/lists/main/ads.txt" maxlength="2048"></div>
+    <div><label for="source-category">Default category</label><input id="source-category" name="category" placeholder="ads" maxlength="32"></div>
+    <div class="align-end"><button class="btn primary" id="btn-add-source">Add</button></div>
+  </form>
+</section>
+
+<section class="card">
+  {% if sources %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>URL</th><th>Category</th><th>Entries</th><th>Last sync (UTC)</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for s in sources %}
+    <tr class="{{ '' if s.enabled else 'disabled' }}">
+      <td class="mono break">{{ s.url }}</td>
+      <td><span class="chip">{{ s.category }}</span></td>
+      <td class="num">{{ "{:,}".format(s.last_count) }}</td>
+      <td class="dim">{{ s.last_sync or 'never' }}</td>
+      <td><span class="badge {{ 'allow' if (s.last_status or '') == 'ok' else 'monitor' if (s.last_status or '').startswith('cached') else 'block' if s.last_status else 'pass' }}">{{ (s.last_status or 'pending')[:60] }}</span></td>
+      <td class="inline-actions">
+        <form method="post" action="{{ url_for('sentinel.source_op', source_id=s.id, op='disable' if s.enabled else 'enable') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn ghost sm">{{ 'Disable' if s.enabled else 'Enable' }}</button>
+        </form>
+        <form method="post" action="{{ url_for('sentinel.source_op', source_id=s.id, op='delete') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn danger sm" data-confirm="Delete this source?">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">No remote sources configured.</p>{% endif %}
+</section>
+{% endblock %}

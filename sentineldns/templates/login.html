@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="login-wrap">
+  <div class="card login-card">
+    <div class="brand big"><span class="brand-mark" aria-hidden="true">◈</span> Sentinel<span class="accent">DNS</span></div>
+    <h1>Control plane sign in</h1>
+    <form method="post" action="{{ url_for('sentinel.login') }}" class="stack" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="login-username">Username</label>
+      <input id="login-username" name="username" required autocomplete="username" maxlength="64">
+      <label for="login-password">Password</label>
+      <input id="login-password" name="password" type="password" required autocomplete="current-password" maxlength="256">
+      <button type="submit" class="btn primary" id="btn-login">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

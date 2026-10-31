@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentineldns"
+version = "0.1.0"
+description = "Category-based DNS and domain traffic filter with a Flask/SQLite admin plane"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "flask>=3.0,<4",
+    "dnslib>=0.9.24,<1",
+]
+
+[project.optional-dependencies]
+prod = ["gunicorn>=22"]
+dev = ["pytest>=8", "ruff>=0.6", "bandit>=1.7.9"]
+
+[project.scripts]
+sentineldns = "sentineldns.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["sentineldns*"]
+
+[tool.setuptools.package-data]
+sentineldns = ["templates/*.html", "static/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "S", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106", "S310", "S311"]
+"QA/*" = ["S101", "S104", "S105", "S106", "S310", "S311", "E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["perf: Big-O performance budget tests"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

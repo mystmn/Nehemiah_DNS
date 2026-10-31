@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Lookup{% endblock %}
+{% block content %}
+<h1 class="page-title">Domain lookup</h1>
+<section class="card">
+  <form method="get" action="{{ url_for('sentinel.lookup') }}" class="search">
+    <label for="lookup-q" class="sr-only">Domain</label>
+    <input id="lookup-q" name="q" value="{{ query }}" placeholder="sub.example.com" autofocus maxlength="253">
+    <button class="btn primary" id="btn-lookup">Evaluate</button>
+  </form>
+</section>
+
+{% if decision %}
+<section class="card result {{ decision.action|lower }}">
+  <div class="result-head">
+    <span class="badge big {{ decision.action|lower }}">{{ decision.action }}</span>
+    <span class="mono strong">{{ decision.query }}</span>
+  </div>
+  <dl class="kv">
+    <dt>Matched</dt><dd class="mono">{{ decision.matched or '—' }}</dd>
+    <dt>Category</dt><dd><span class="chip">{{ decision.category }}</span></dd>
+    <dt>Origin</dt><dd>{{ decision.origin }}</dd>
+    <dt>Bisect cross-check</dt><dd class="mono">{{ bisect_match[0] ~ ' (' ~ bisect_match[1] ~ ')' if bisect_match else 'not on any list' }}</dd>
+  </dl>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Listed entries in this subtree</h2><span class="dim">O(log N + k) range scan</span></div>
+  {% if children %}
+  <ul class="pill-list">{% for c in children %}<li class="mono">{{ c }}</li>{% endfor %}</ul>
+  {% else %}<p class="empty">No listed entries under this domain.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

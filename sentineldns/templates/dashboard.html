@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Reviews{% endblock %}
+{% block content %}
+<h1 class="page-title">Review queue</h1>
+
+<section class="stats" aria-label="Statistics">
+  <div class="stat"><span class="stat-label">Domains indexed</span><span class="stat-value" id="stat-domains">{{ "{:,}".format(domain_count) }}</span></div>
+  <div class="stat warn"><span class="stat-label">Pending review</span><span class="stat-value" id="stat-pending">{{ stats.pending }}</span></div>
+  <div class="stat"><span class="stat-label">Hits (24h)</span><span class="stat-value">{{ stats.hits_24h }}</span></div>
+  <div class="stat danger"><span class="stat-label">Blocked (24h)</span><span class="stat-value">{{ stats.blocked_24h }}</span></div>
+  <div class="stat"><span class="stat-label">Admin rules</span><span class="stat-value">{{ stats.rules }}</span></div>
+  <div class="stat {{ 'ok' if alerts_enabled else 'muted' }}"><span class="stat-label">E-mail alerts</span><span class="stat-value small">{{ 'Enabled' if alerts_enabled else 'Not configured' }}</span></div>
+</section>
+{% if dropped %}<div class="flash error">Hit buffer overflowed: {{ dropped }} events dropped since start.</div>{% endif %}
+
+<section class="card">
+  <div class="card-head">
+    <h2>Hits by matched rule</h2>
+    <div class="tabs" role="tablist">
+      {% for s in statuses %}
+      <a role="tab" id="tab-{{ s|lower }}" class="tab {{ 'active' if s == status }}" href="{{ url_for('sentinel.dashboard', status=s) }}">{{ s|title }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% if reviews %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Matched</th><th>Category</th><th>Action</th><th>Hits</th><th>Last query</th><th>Client</th><th>Last seen (UTC)</th>{% if status == 'PENDING' %}<th>Decision</th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in reviews %}
+      <tr id="review-{{ r.matched }}">
+        <td class="mono strong">{{ r.matched }}</td>
+        <td><span class="chip">{{ r.category }}</span></td>
+        <td><span class="badge {{ r.action|lower }}">{{ r.action }}</span></td>
+        <td class="num">{{ r.hit_count }}</td>
+        <td class="mono dim">{{ r.last_query }}</td>
+        <td class="mono dim">{{ r.last_client }}</td>
+        <td class="dim">{{ r.last_seen }}</td>
+        {% if status == 'PENDING' %}
+        <td>
+          <form method="post" action="{{ url_for('sentinel.review_action') }}" class="inline-actions">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="matched" value="{{ r.matched }}">
+            <button class="btn danger sm" name="action" value="confirm" title="Keep blocking (adds BLOCK rule)">Confirm</button>
+            <button class="btn success sm" name="action" value="allow" title="Whitelist (adds ALLOW rule)" data-confirm="Allow {{ r.matched }} and all subdomains?">Allow</button>
+            <button class="btn ghost sm" name="action" value="dismiss">Dismiss</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="empty">Nothing here. Quiet network — or nothing has matched yet.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Latest raw hits</h2></div>
+  {% if events %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Time (UTC)</th><th>Query</th><th>Matched</th><th>Category</th><th>Action</th><th>Client</th><th>Via</th></tr></thead>
+    <tbody>
+    {% for e in events %}
+      <tr><td class="dim">{{ e.ts }}</td><td class="mono">{{ e.query }}</td><td class="mono dim">{{ e.matched }}</td>
+      <td><span class="chip">{{ e.category }}</span></td><td><span class="badge {{ e.action|lower }}">{{ e.action }}</span></td>
+      <td class="mono dim">{{ e.client_ip }}</td><td class="dim">{{ e.channel }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="empty">No hits recorded yet.</p>{% endif %}
+</section>
+{% endblock %}
